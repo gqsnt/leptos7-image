@@ -1,3 +1,4 @@
+use leptos::prelude::provide_context;
 use serde::{Deserialize, Serialize};
 
 /// ImageOptimizer enables image optimization and caching.
@@ -38,6 +39,7 @@ impl ImageOptimizer {
     /// use leptos::*;
     /// use axum::*;
     /// use axum::routing::post;
+    /// use leptos::prelude::LeptosOptions;
     /// use leptos_axum::{generate_route_list, handle_server_fns, LeptosRoutes};
     ///
     /// #[cfg(feature = "ssr")]
@@ -61,7 +63,7 @@ impl ImageOptimizer {
     /// // Composite App State with the optimizer and leptos options.
     /// #[derive(Clone, axum::extract::FromRef)]
     /// struct AppState {
-    ///   leptos_options: leptos::LeptosOptions,
+    ///   leptos_options: LeptosOptions,
     ///   optimizer: leptos_image::ImageOptimizer,
     /// }
     ///
@@ -73,7 +75,7 @@ impl ImageOptimizer {
     pub fn provide_context(&self) -> impl Fn() + 'static + Clone + Send {
         let optimizer = self.clone();
         move || {
-            leptos::provide_context(optimizer.clone());
+            provide_context(optimizer.clone());
         }
     }
 

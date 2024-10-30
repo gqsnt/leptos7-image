@@ -1,6 +1,8 @@
+use leptos::attr::{Attribute, AttributeValue};
+use leptos::either::Either;
 use crate::optimizer::*;
 
-use leptos::*;
+use leptos::prelude::*;
 use leptos_meta::Link;
 
 /**
@@ -34,12 +36,12 @@ pub fn Image(
     alt: String,
     /// Style class for image.
     #[prop(into, optional)]
-    class: Option<AttributeValue>,
+    class: Option<String>,
 ) -> impl IntoView {
     if src.starts_with("http") {
-        logging::debug_warn!("Image component only supports static images.");
+        debug_warn!("Image component only supports static images.");
         let loading = if lazy { "lazy" } else { "eager" };
-        return view! { <img src=src alt=alt class=class loading=loading/> }.into_view();
+        return Either::Left(view! { <img src=src alt=alt class=class loading=loading/> });
     }
 
     let blur_image = {
@@ -69,12 +71,12 @@ pub fn Image(
     // Retrieve value from Cache if it exists. Doing this per-image to allow image introspection.
     let resource = crate::use_image_cache_resource();
 
-    let blur_image = store_value(blur_image);
-    let opt_image = store_value(opt_image);
-    let alt = store_value(alt);
-    let class = store_value(class.map(|c| c.into_attribute_boxed()));
+    let blur_image = StoredValue::new(blur_image);
+    let opt_image = StoredValue::new(opt_image);
+    let alt = StoredValue::new(alt);
+    let class = StoredValue::new(class.map(|c| c));
 
-    view! {
+    Either::Right(view! {
         <Suspense fallback=|| ()>
             {move || {
                 resource
@@ -99,11 +101,10 @@ pub fn Image(
                             };
                             let class = class.get_value();
                             let alt = alt.get_value();
-                            view! { <CacheImage lazy svg opt_image alt class=class priority/> }
-                                .into_view()
+                            Either::Left(view! { <CacheImage lazy svg opt_image alt class=class priority/> })
                         } else {
                             let loading = if lazy { "lazy" } else { "eager" };
-                            view! {
+                            Either::Right(view! {
                                 <img
                                     alt=alt.get_value()
                                     class=class.get_value()
@@ -111,14 +112,13 @@ pub fn Image(
                                     loading=loading
                                     src=opt_image
                                 />
-                            }
-                                .into_view()
+                            })
                         }
                     })
             }}
 
         </Suspense>
-    }
+    })
 }
 
 enum SvgImage {
@@ -131,7 +131,7 @@ fn CacheImage(
     svg: SvgImage,
     #[prop(into)] opt_image: String,
     #[prop(into, optional)] alt: String,
-    class: Option<Attribute>,
+    class: Option<String>,
     priority: bool,
     lazy: bool,
 ) -> impl IntoView {
@@ -158,9 +158,9 @@ fn CacheImage(
 
     view! {
         {if priority {
-            view! { <Link rel="preload" as_="image" href=opt_image.clone()/> }.into_view()
+            Either::Left(view! { <Link rel="preload" as_="image" href=opt_image.clone()/> }.into_view())
         } else {
-            ().into_view()
+            Either::Right(view!{})
         }}
 
         <img

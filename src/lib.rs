@@ -45,6 +45,7 @@
 //! # use leptos::*;
 //! # use axum::*;
 //! # use axum::routing::post;
+//! use leptos::prelude::LeptosOptions;
 //! # use leptos_axum::{generate_route_list, handle_server_fns, LeptosRoutes};
 //!
 //! #[cfg(feature = "ssr")]
@@ -67,7 +68,7 @@
 //! // Composite App State with the optimizer and Leptos options.
 //! #[derive(Clone, axum::extract::FromRef)]
 //! struct AppState {
-//!     leptos_options: leptos::LeptosOptions,
+//!     leptos_options: LeptosOptions,
 //!     optimizer: leptos_image::ImageOptimizer,
 //! }
 //!

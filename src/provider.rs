@@ -1,5 +1,5 @@
 use crate::optimizer::CachedImage;
-use leptos::*;
+use leptos::prelude::*;
 
 /// Provides Image Cache Context so that Images can use their blur placeholders if they exist.
 ///
@@ -21,7 +21,7 @@ use leptos::*;
 ///
 /// ```
 pub fn provide_image_context() {
-    let resource: ImageResource = create_blocking_resource(
+    let resource: ImageResource = Resource::new_blocking(
         || (),
         |_| async {
             get_image_config()
@@ -30,10 +30,10 @@ pub fn provide_image_context() {
         },
     );
 
-    leptos::provide_context(resource);
+    provide_context(resource);
 }
 
-type ImageResource = Resource<(), ImageConfig>;
+type ImageResource = Resource<ImageConfig>;
 
 #[doc(hidden)]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
